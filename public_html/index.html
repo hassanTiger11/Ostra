@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Ostra</title>
+    <link rel="stylesheet" href="./master.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="./index.js" type="text/javascript">
+    </script>
+  </head>
+  <body>
+    <div id="AddUserBlock">
+      <h2>Add User</h2>
+      <div>
+        <label for="userName">Username </label>
+        <input id="userName" type="text" name="" placeholder="Your name">
+      </div>
+      <div>
+        <label for="password">Password </label>
+        <input type="text" id = "password" placeholder="XXXXXXX">
+      </div>
+      <button onclick="addUser()">Add User</button>
+
+    </div>
+    <div id="addItemBlock">
+      <h2>Add Item</h2>
+      <div>
+        <label for="title">Title </label>
+        <input id="title" type="text" name="" placeholder="title">
+      </div>
+      <div>
+        <label for="description">description </label>
+        <input type="text" id = "description" placeholder="omg, you will enjoy this product!">
+      </div>
+      <div>
+        <label for="image">image </label>
+        <input type="text" id = "image" placeholder="product.jpg">
+      </div>
+      <div>
+        <label for="price">price </label>
+        <input type="text" id = "price" placeholder="$5">
+      </div>
+      <div>
+        <label for="status">status </label>
+        <input type="text" id = "status" placeholder="like new">
+      </div>
+
+      <button onclick="addItem()">Add Item</button>
+    </div>
+
+
+  </body>
+</html>
