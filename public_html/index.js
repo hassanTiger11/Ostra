@@ -43,6 +43,8 @@ function addItem(){
         price: $("#price").val(),
         status: $("#status").val(),
           },
-    success: console.log("client: added item for "+ userName),
+    success: function(data){
+      alert(data);
+    }
     });
 }
