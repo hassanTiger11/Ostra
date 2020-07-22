@@ -76,7 +76,7 @@ This method retuns all the users who are members of this marketplace
 */
 app.get("/get/users", function(req, res){
   User.find(function(err, user){
-    console.log("getting all users");
+    console.log("server: getting all users");
     for(i in user){
       console.log(user[i]["username"]+"\n");
     }
@@ -88,8 +88,8 @@ app.get("/get/users", function(req, res){
 This method retuns all the items in the market plae
 */
 app.get("/get/items/", function(req, res){
+  console.log("server: getting all items");
   Item.find(function(err, item){
-    console.log("getting all items");
     for(i in item){
       console.log("description: "+ item[i]["description"])
       console.log(item[i]["title"]+"\n");
@@ -104,27 +104,28 @@ This method adds a user to the marketplace. It does so by making a new user obje
 app.post("/add/user/", function(req, res){
   console.log("server: adding user...");
   console.log("username: "+ req.body.user+"pass: "+ req.body.pass);
-  let query = User.findOne({usename: req.body.user});
-  query.exec(function(err, user){
+  let queryCheck = User.findOne({username: req.body.user});
+  queryCheck.exec(function(err, user){
+    console.log(user);
     if(user != null){
       res.write("Error: user already exist");
       res.end();
-      res.redirect('/index.html');
+      //res.redirect('/index.html');
+    }else{
+      let newUser = new User(
+        {
+          username: req.body.user,
+          password: req.body.pass,
+          listings: [],
+          purchases: [],
+        });
+      newUser.save(function(err, user){
+        if(err){console.log(err);}
+        res.write("Added user!");
+        res.end();
+      });
     }
   });
-  let newUser = new User(
-    {
-      username: req.body.user,
-      password: req.body.pass,
-      listings: [],
-      purchases: [],
-    });
-  newUser.save(function(err, user){
-    if(err){console.log(err);}
-    res.write("Added user!");
-    res.end();
-  });
-
 });
 /*
 This method adds a new listing into the item's list and fetch the user then adds
@@ -132,36 +133,36 @@ This method adds a new listing into the item's list and fetch the user then adds
 app.post("/add/item/:userName", function(req, res){
   var userName = req.params.userName;
   console.log("server: adding items for "+ userName);
-  console.log("decription: "+  req.body.description);
-  let queryCheck = User.findOne({"username": userName});
+  let queryCheck = User.findOne({username: userName});
   queryCheck.exec(function(err, user){
       if(user== null){
         res.write("Erorr: user doesn't exist");
         res.end();
-        res.redirect('/index.html');
+      }else{
+        let newItem = new Item(
+          {
+            title: req.body.title,
+            description   : req.body.description,
+            image         : req.body.image,
+            price         : req.body.price,
+            stat          : req.body.status,
+          });
+        let id = newItem._id;
+        newItem.save(function(err, item){
+          if(err){console.log(err);}
+          console.log(req.body.title+ " is saved \n");
+        });
+        //search for a user with the speicified userName
+        let query = User.findOne({"username": userName});
+        query.exec(function(err, user){
+            user.listings.push(id);
+            user.save();
+            res.write("Added item!");
+            res.end();
+        });
       }
   });
-  let newItem = new Item(
-    {
-      title: req.body.title,
-      description   : req.body.description,
-      image         : req.body.image,
-      price         : req.body.price,
-      stat          : req.body.status,
-    });
-  let id = newItem._id;
-  newItem.save(function(err, item){
-    if(err){console.log(err);}
-    console.log(req.body.title+ " is saved \n");
-  });
-  //search for a user with the speicified userName
-  let query = User.findOne({"username": userName});
-  query.exec(function(err, user){
-      user.listings.push(id);
-      user.save();
-      res.write("Added item!");
-      res.end();
-  });
+
 });
 
 /*
@@ -170,15 +171,19 @@ THis method uses a query to get all the listings for a specific user
 app.get("/get/listings/:userName", function(req, res){
   let userName = req.params.userName;
   let query = User.findOne({username: userName});
+  console.log("server: getting listings for "+ userName);
   query.exec(function(err, user){
     if(err){console.log(err);}
     if(user == null){
       res.write("Error: user doesn't exist");
       res.end();
     }
-    //console.log("server: found: "+ user.username);
-    res.write(JSON.stringify(user.listings));
-    res.end();
+    else{
+      //console.log("server: found: "+ user.username);
+      res.write(JSON.stringify(user.listings));
+      res.end();
+    }
+
   });
 });
 /*
@@ -188,12 +193,17 @@ app.get("/get/purchases/:userName", function(req, res){
   let userName = req.params.userName;
   let query = User.findOne({username: userName});
   query.exec(function(err, user){
+    if(err){
+      console.log(err);
+    }
     if(user == null){
       res.write("Error: user doesn't exist");
       res.end();
+    }else{
+      res.write(JSON.stringify(user.purchases));
+      res.end();
     }
-    res.write(JSON.stringify(user.purchases));
-    res.end();
+
   });
 });
 /*
